@@ -9,15 +9,50 @@ import SwiftUI
 
 struct ContentView: View {
     let emojis: [String] = ["🦄", "🐇", "🐰", "🦎", "🐻", "🐼", "🦁", "🐨"]
+    @State var cardCounters: Int = 4
      
     var body: some View {
+        VStack {
+            cards
+            cardCountersAdjusters
+        }
+        .padding()
+    }
+    
+    var cardCountersAdjusters: some View {
         HStack {
-            ForEach(emojis.indices, id: \.self) { index in
+            cardRemover
+            Spacer()
+            cardAdder
+        }
+        .imageScale(.large)
+        .font(.largeTitle)
+    }
+    
+    func cardCountAdjuster(by offset: Int, symbol: String) -> some View {
+        Button(action: {
+            cardCounters += offset
+        }, label: {
+            Image(systemName:symbol)
+        })
+        .disabled(cardCounters + offset < 1 || cardCounters + offset > emojis.count)
+    }
+    
+    var cardRemover: some View {
+        cardCountAdjuster(by: -1, symbol: "rectangle.stack.badge.minus.fill")
+    }
+    
+    var cardAdder: some View {
+        cardCountAdjuster(by: +1, symbol: "rectangle.stack.badge.plus.fill")
+    }
+    
+    var cards: some View {
+        HStack {
+            ForEach(0..<cardCounters, id: \.self) { index in
                 CardView(content: emojis[index])
             }
         }
         .foregroundColor(.orange)
-        .padding()
     }
 }
 
