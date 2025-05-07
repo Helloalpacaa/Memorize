@@ -8,57 +8,57 @@
 import SwiftUI
 
 struct ContentView: View {
-    let emojis: [String] = ["🦄", "🐇", "🐰", "🦎", "🐻", "🐼", "🦁", "🐨"]
-    @State var cardCounters: Int = 4
+    let animals: [String] = ["🦄", "🐇", "🐰", "🦎", "🐻", "🐼", "🦁", "🐨"]
+    let vehicles: [String] = ["🚗", "🚀", "🚁", "🚃", "🚄", "🚅", "🚆", "🚇"]
+    let faces: [String] = ["😂", "😁","😎", "😈", "😊", "😋", "😌", "😐", "😑", "😒", "😓", "😔", "😕", "😖", "😘", "🤡"]
+    @State var selectedCards: [String] = []
      
     var body: some View {
         VStack {
+            Text("Memorize!").font(.largeTitle)
             cards
-            cardCountersAdjusters
+            Spacer()
+            
+            HStack {
+                buttonWithIcon("car", title: "Vehicles", emojiSets: self.vehicles)
+                
+                buttonWithIcon("pawprint", title: "Animals", emojiSets: self.animals)
+                
+                buttonWithIcon("face.smiling", title: "Emojis", emojiSets: self.faces)
+                
+            }
         }
         .padding()
     }
     
-    var cardCountersAdjusters: some View {
-        HStack {
-            cardRemover
-            Spacer()
-            cardAdder
+    func buttonWithIcon(_ systemname: String, title: String, emojiSets: [String]) -> some View {
+        Button {
+            selectedCards = (emojiSets + emojiSets).shuffled()
+        } label: {
+            VStack {
+                Image(systemName: systemname)
+                    .font(.title)
+                Text(title).font(.caption)
+            }
         }
-        .imageScale(.large)
-        .font(.largeTitle)
-    }
-    
-    func cardCountAdjuster(by offset: Int, symbol: String) -> some View {
-        Button(action: {
-            cardCounters += offset
-        }, label: {
-            Image(systemName:symbol)
-        })
-        .disabled(cardCounters + offset < 1 || cardCounters + offset > emojis.count)
-    }
-    
-    var cardRemover: some View {
-        cardCountAdjuster(by: -1, symbol: "rectangle.stack.badge.minus.fill")
-    }
-    
-    var cardAdder: some View {
-        cardCountAdjuster(by: +1, symbol: "rectangle.stack.badge.plus.fill")
+        .frame(maxWidth: .infinity)
     }
     
     var cards: some View {
-        HStack {
-            ForEach(0..<cardCounters, id: \.self) { index in
-                CardView(content: emojis[index])
+        ScrollView{
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 65, maximum: 100))]) {
+                ForEach(0..<selectedCards.count, id: \.self) { index in
+                    CardView(content: selectedCards[index])
+                }
             }
+            .foregroundColor(.orange)
         }
-        .foregroundColor(.orange)
     }
 }
 
 struct CardView: View {
     let content: String
-    @State var isFaceUp = true
+    @State var isFaceUp = false
     
     var body: some View {
         ZStack (alignment: .center) {
@@ -72,7 +72,9 @@ struct CardView: View {
             } else {
                 base
             }
-        }.onTapGesture {
+        }
+        .frame(width: 70, height: 100)
+        .onTapGesture {
             isFaceUp.toggle()
         }
     }
